@@ -1,0 +1,40 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Summary {
+  id: ID!
+  earning: Float
+  profit: Float
+  managerAccepted: Boolean
+  managerId: String
+  manager: User
+  employeeId: String
+  employee: User
+  date: String
+  startDate: String
+  endDate: String
+  summaryInventory(filter: FilterInput): [Inventory]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+}
+
+input employeeDailySummaryFilter {
+  employeeId: String!
+  date: Timestamp!
+}
+
+input managerAcceptInput {
+  employeeId: String!
+  date: Timestamp!
+}
+
+extend type Query {
+  summary(startDate: Timestamp!, endDate: Timestamp!): Summary
+  employeeDailySummary(input: employeeDailySummaryFilter!): Summary
+}
+
+extend type Mutation {
+  managerAccept(id: ID!): Summary!
+}

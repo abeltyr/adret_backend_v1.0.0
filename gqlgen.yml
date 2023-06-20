@@ -1,0 +1,138 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - src/graphql/schema/*/*.graphql
+
+# Where should the generated server code go?
+exec:
+  filename: src/graphql/generated/generated.go
+  package: generated
+
+# # Uncomment to enable federation
+# federation:
+#   filename: graphql/generated/federation.go
+#   package: generated
+
+# Where should any generated models go?
+model:
+  filename: src/graphql/model/models_gen.go
+  package: model
+
+# Where should the resolver implementations go?
+resolver:
+  layout: follow-schema
+  dir: src/graphql/resolver
+  package: graph
+
+# Optional: turn on use `gqlgen:"fieldName"` tags in your models
+# struct_tag: json
+
+# Optional: turn on to use []Thing instead of []*Thing
+# omit_slice_element_pointers: false
+
+# Optional: set to speed up generation time by not performing a final validation pass.
+# skip_validation: true
+
+# gqlgen will search for any type names in the schema in these go packages
+# if they match it will use them, otherwise it will generate them.
+autobind:
+  - "adr/backend/src/graphql/model"
+
+# This section declares type mapping between the GraphQL and go type systems
+#
+# The first line in each type will be used as defaults for resolver arguments and
+# modelgen, the others will be allowed when binding to fields. Configure them to
+# your liking
+models:
+  ID:
+    model:
+      - github.com/arsmn/fastgql/graphql.ID
+      - github.com/arsmn/fastgql/graphql.Int
+      - github.com/arsmn/fastgql/graphql.Int64
+      - github.com/arsmn/fastgql/graphql.Int32
+  Int:
+    model:
+      - github.com/arsmn/fastgql/graphql.Int
+      - github.com/arsmn/fastgql/graphql.Int64
+      - github.com/arsmn/fastgql/graphql.Int32
+  Company:
+    fields:
+      owner:
+        resolver: true
+  Summary:
+    fields:
+      employee:
+        resolver: true
+      manager:
+        resolver: true
+      summaryInventory:
+        resolver: true
+  User:
+    fields:
+      creator:
+        resolver: true
+      company:
+        resolver: true
+  Inventory:
+    fields:
+      product:
+        resolver: true
+      sales:
+        resolver: true
+      inventoryVariation:
+        resolver: true
+      media:
+        resolver: true
+  InventoryVariation:
+    fields:
+      title:
+        resolver: true
+  Sales:
+    fields:
+      inventory:
+        resolver: true
+      order:
+        resolver: true
+  Referral:
+    fields:
+      promoter:
+        resolver: true
+      company:
+        resolver: true
+  Promoter:
+    fields:
+      banks:
+        resolver: true
+      company:
+        resolver: true
+  Order:
+    fields:
+      seller:
+        resolver: true
+      onlineOrderDetail:
+        resolver: true
+      company:
+        resolver: true
+      onlineOrderPayment:
+        resolver: true
+      sales:
+        resolver: true
+  Product:
+    fields:
+      creator:
+        resolver: true
+      inStock:
+        resolver: true
+      company:
+        resolver: true
+      totalInventory:
+        resolver: true
+      soldInventory:
+        resolver: true
+      category:
+        resolver: true
+      inventory:
+        resolver: true
+      variation:
+        resolver: true
+      media:
+        resolver: true

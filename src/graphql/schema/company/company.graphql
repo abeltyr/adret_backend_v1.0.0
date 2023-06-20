@@ -1,0 +1,48 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar Timestamp
+scalar Upload
+scalar Json
+
+type Company {
+  id: ID!
+  name: String
+  companyCode: String
+  detail: String
+  longitude: String
+  latitude: Boolean
+  ownerId: String
+  owner: User
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+}
+
+input createCompanyInput {
+  name: String!
+  companyCode: String!
+}
+
+input createOwnerInput {
+  phoneNumber: String!
+  fullName: String!
+  userName: String!
+  password: String!
+}
+
+input createBranchInput {
+  branchName: String!
+  latitude: String!
+  longitude: String!
+}
+
+extend type Mutation {
+  createOwnerCompany(
+    company: createCompanyInput!
+    owner: createOwnerInput
+    branch: createBranchInput
+  ): Company!
+  resetOwnerPassword(username: String!, newPassword: String!): Boolean!
+}

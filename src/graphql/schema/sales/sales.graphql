@@ -1,0 +1,26 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Sales {
+  id: ID!
+  sellingPrice: Float
+  profit: Float
+  inventoryId: ID
+  inventory: Inventory
+  orderId: ID
+  order: Order
+}
+
+input salesFilter {
+  filter: FilterInput
+  orderId: String
+  inventoryId: String
+  minSellingPrice: Float
+  maxSellingPrice: Float
+}
+
+extend type Query {
+  sale(orderId: ID!, inventoryId: ID!): Sales
+  sales(input: salesFilter!): [Sales]
+}

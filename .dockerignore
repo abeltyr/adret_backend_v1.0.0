@@ -1,0 +1,8 @@
+/tmp
+/bin
+.env
+.env.example
+main
+main.zip
+/build
+/.github

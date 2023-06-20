@@ -1,0 +1,77 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Order {
+  id: ID!
+  online: Boolean
+  orderNumber: String
+  note: String
+  totalPrice: Float
+  totalProfit: Float
+  date: String
+  sellerId: ID
+  seller: User
+  companyId: ID
+  company: Company
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+  onlineOrderDetail: OnlineOrderDetail
+  onlineOrderPayment: OnlineOrderPayment
+  sales: [Sales]
+}
+
+type OnlineOrderDetail {
+  id: ID!
+  delivery: Boolean
+  latitude: String
+  longitude: String
+  locationName: String
+  detail: String
+  phoneNumber: String
+  email: String
+  clientFullName: String
+  redirectUrl: String
+  status: String
+  extra: Json
+}
+
+type OnlineOrderPayment {
+  id: ID!
+  method: String
+  reference: String
+  txRef: String
+  paid: Boolean
+  paidDate: Timestamp
+  extra: Json
+}
+
+input ordersFilter {
+  filter: FilterInput
+  sellerId: String
+  minTotalPrice: Float
+  maxTotalPrice: Float
+  startDate: Timestamp
+  endDate: Timestamp
+}
+
+input createLocalOrderInput {
+  note: String
+  salesInput: [salesInput!]!
+}
+
+input salesInput {
+  sellingPrice: Float!
+  inventoryId: ID!
+  amount: Int!
+}
+
+extend type Query {
+  order(id: ID!): Order
+  orders(input: ordersFilter!): [Order]
+}
+
+extend type Mutation {
+  createLocalOrder(input: createLocalOrderInput!): Order!
+}

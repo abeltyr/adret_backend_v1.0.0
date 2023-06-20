@@ -1,0 +1,48 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Inventory {
+  id: ID!
+  inventoryVariation: [InventoryVariation]
+  media: String
+  salesAmount: Int
+  available: Int
+  initialPrice: Float
+  minSellingPriceEstimation: Float
+  maxSellingPriceEstimation: Float
+  productId: String
+  product: Product
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+}
+
+type InventoryVariation {
+  id: ID
+  data: String
+  title: String
+  productVariationId: ID
+}
+
+input inventoriesFilter {
+  filter: FilterInput
+  sold: Boolean
+  boughtDates: Timestamp
+  productId: String
+  employeeId: String
+}
+
+input updateInventoryInput {
+  productId: ID!
+  title: String!
+  newTitle: String
+  initialPrice: Float
+  minSellingPriceEstimation: Float
+  maxSellingPriceEstimation: Float
+}
+
+extend type Query {
+  inventory(id: ID!): Inventory
+  inventories(input: inventoriesFilter!): [Inventory]
+}

@@ -1,0 +1,75 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type User {
+  id: ID!
+  fullName: String
+  phoneNumber: String
+  email: String
+  userName: String
+  isActive: Boolean
+  userRole: Role
+  companyId: String
+  company: Company
+  creatorId: String
+  creator: User
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+}
+
+input FilterInput {
+  after: String
+  before: String
+  limit: Int
+}
+
+input usersFilter {
+  filter: FilterInput
+  companyId: String
+  role: Role
+  exceptMe: Boolean
+}
+
+input createUserInput {
+  phoneNumber: String
+  fullName: String
+  userName: String
+  password: String
+}
+
+enum Role {
+  Manager
+  Employee
+}
+
+input updateUserInput {
+  phoneNumber: String
+  fullName: String
+  email: String
+  id: String
+}
+
+input updateUserPasswordInput {
+  username: String
+  password: String
+}
+
+input updatePersonalPasswordInput {
+  password: String
+  oldPassword: String
+}
+
+extend type Query {
+  currentUser: User
+  user(id: ID!): User
+  users(input: usersFilter!): [User]
+}
+
+extend type Mutation {
+  createUser(input: createUserInput!): User!
+  updateUser(input: updateUserInput!): User!
+  updateUserPassword(input: updateUserPasswordInput!): Boolean
+  updatePersonalPassword(input: updatePersonalPasswordInput!): Boolean
+}

@@ -1,0 +1,276 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator db {
+    provider = "go run github.com/prisma/prisma-client-go"
+}
+
+model Category {
+    id              String            @id @default(cuid())
+    name            String            @unique
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @default(now()) @updatedAt
+    deletedAt       DateTime?
+    CategoryProduct CategoryProduct[]
+    CategoryCompany CategoryCompany[]
+}
+
+model Company {
+    id                   String                 @id @default(cuid())
+    name                 String
+    companyCode          String                 @unique
+    detail               String?
+    ownerId              String?
+    createdAt            DateTime               @default(now())
+    updatedAt            DateTime               @default(now()) @updatedAt
+    deletedAt            DateTime?
+    User                 User[]
+    CategoryCompany      CategoryCompany[]
+    Product              Product[]
+    ProductVariation     ProductVariation[]
+    Order                Order[]
+    EmployeeDailySummary EmployeeDailySummary[]
+    Summary              Summary[]
+    CompanyBranch        CompanyBranch[]
+}
+
+model CategoryCompany {
+    id           String   @id @default(cuid())
+    categoryName String
+    category     Category @relation(fields: [categoryName], references: [name], onDelete: Cascade)
+    companyId    String
+    company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+    @@unique([categoryName, companyId])
+}
+
+model CompanyBranch {
+    id         String    @id @default(cuid())
+    branchName String
+    longitude  String?
+    latitude   String?
+    companyId  String
+    company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    Product    Product[]
+    User       User[]
+
+    @@unique([branchName, companyId])
+}
+
+model User {
+    id                   String                 @id @default(cuid())
+    fullName             String
+    phoneNumber          String?                @unique
+    subId                String?                @unique
+    phoneNumberVerified  Boolean?               @default(false)
+    email                String?                @unique
+    userName             String                 @unique
+    emailVerified        Boolean                @default(false)
+    isActive             Boolean                @default(true)
+    userRole             Role                   @default(Employee)
+    companyId            String?
+    company              Company?               @relation(fields: [companyId], references: [id], onDelete: SetNull)
+    branchId             String?
+    branch               CompanyBranch?         @relation(fields: [branchId], references: [id], onDelete: SetNull)
+    creatorId            String?
+    createdAt            DateTime               @default(now())
+    updatedAt            DateTime               @default(now()) @updatedAt
+    deletedAt            DateTime?
+    Product              Product[]
+    Order                Order[]
+    EmployeeDailySummary EmployeeDailySummary[]
+}
+
+model TableCount {
+    id    String @id
+    count Int    @default(1)
+}
+
+model Product {
+    id               String             @id @default(cuid())
+    productCode      String             @unique
+    title            String
+    branchId         String?
+    branch           CompanyBranch?     @relation(fields: [branchId], references: [id], onDelete: SetNull)
+    detail           String             @db.Text
+    creatorId        String?
+    creator          User?              @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+    companyId        String?
+    company          Company?           @relation(fields: [companyId], references: [id], onDelete: SetNull)
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @default(now()) @updatedAt
+    deletedAt        DateTime?
+    CategoryProduct  CategoryProduct[]
+    Inventory        Inventory[]
+    ProductVariation ProductVariation[]
+}
+
+model CategoryProduct {
+    id           String   @id @default(cuid())
+    categoryName String
+    category     Category @relation(fields: [categoryName], references: [name], onDelete: Cascade)
+    productId    String
+    product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+    @@unique([categoryName, productId])
+}
+
+model ProductVariation {
+    id                 String               @id @default(cuid())
+    title              String
+    order              Int                  @default(0)
+    productId          String
+    product            Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+    companyId          String
+    company            Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    InventoryVariation InventoryVariation[]
+
+    @@unique([title, productId])
+}
+
+model Inventory {
+    id                        String               @id @default(cuid())
+    salesAmount               Int                  @default(0)
+    available                 Int                  @default(1)
+    initialPrice              Float
+    minSellingPriceEstimation Float
+    maxSellingPriceEstimation Float
+    productId                 String
+    order                     Int                  @default(0)
+    product                   Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+    createdAt                 DateTime             @default(now())
+    updatedAt                 DateTime             @default(now()) @updatedAt
+    deletedAt                 DateTime?
+    Sales                     Sales[]
+    InventoryVariation        InventoryVariation[]
+    restock                   Restock[]
+    priceHistory              PriceHistory[]
+}
+
+model InventoryVariation {
+    id                 String           @id @default(cuid())
+    data               String
+    inventoryId        String
+    inventory          Inventory        @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    productVariationId String
+    productVariation   ProductVariation @relation(fields: [productVariationId], references: [id], onDelete: Cascade)
+
+    @@unique([inventoryId, productVariationId])
+}
+
+model Order {
+    id          String    @id @default(cuid())
+    online      Boolean
+    orderNumber String    @unique
+    note        String
+    totalPrice  Float
+    totalProfit Float
+    paid        Boolean   @default(false)
+    date        DateTime  @db.Date
+    sellerId    String?
+    seller      User?     @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+    companyId   String?
+    company     Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @default(now()) @updatedAt
+    deletedAt   DateTime?
+    Sales       Sales[]
+}
+
+model Sales {
+    amount       Int
+    sellingPrice Float
+    profit       Float
+    inventoryId  String
+    inventory    Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    orderId      String
+    order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@id([orderId, inventoryId])
+}
+
+model Restock {
+    id          String    @id @default(cuid())
+    amount      Int
+    inventoryId String
+    inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @default(now()) @updatedAt
+    deletedAt   DateTime?
+}
+
+model PriceHistory {
+    id                        String    @id @default(cuid())
+    initialPrice              Float?
+    minSellingPriceEstimation Float?
+    maxSellingPriceEstimation Float?
+    inventoryId               String
+    inventory                 Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+    createdAt                 DateTime  @default(now())
+    updatedAt                 DateTime  @default(now()) @updatedAt
+    deletedAt                 DateTime?
+}
+
+model EmployeeDailySummary {
+    id              String    @id @default(cuid())
+    earning         Float
+    profit          Float
+    managerAccepted Boolean   @default(false)
+    date            DateTime  @db.Date
+    managerId       String?
+    manager         User?     @relation(fields: [managerId], references: [id], onDelete: Cascade)
+    employeeId      String
+    companyId       String
+    company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @default(now()) @updatedAt
+    deletedAt       DateTime?
+
+    @@unique([companyId, date, employeeId])
+}
+
+model Summary {
+    id        String    @id @default(cuid())
+    earning   Float
+    profit    Float
+    startDate DateTime  @db.Date
+    endDate   DateTime  @db.Date
+    companyId String
+    company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @default(now()) @updatedAt
+    deletedAt DateTime?
+
+    @@unique([companyId, startDate, endDate])
+}
+
+enum Role {
+    Employee
+    Manager
+}
+
+model File {
+    id           String         @id @default(cuid())
+    name         String?
+    uploader     String?
+    url          String
+    contentType  String
+    previewUrl   String
+    width        String?
+    height       String?
+    size         String?
+    FileRelation FileRelation[]
+}
+
+model FileRelation {
+    id     String @id @default(cuid())
+    fileId String
+    file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+    table  String
+    order  Int    @default(0)
+    value  String
+
+    @@unique([table, order, value])
+}

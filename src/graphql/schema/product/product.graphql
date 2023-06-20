@@ -1,0 +1,94 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Product {
+  id: ID!
+  productCode: String
+  title: String
+  detail: String
+  creatorId: String
+  creator: User
+  companyId: String
+  company: Company
+  category: String
+  inStock: Int
+  media: [String]
+  inventory: [Inventory]
+  variation: [ProductVariation]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  deletedAt: Timestamp
+}
+
+type ProductVariation {
+  id: ID
+  title: String
+  order: Int
+}
+
+input productsFilter {
+  filter: FilterInput
+  code: String
+  title: String
+  category: String
+  creatorId: String
+  topSelling: Boolean
+}
+
+input createProductInput {
+  title: String!
+  detail: String!
+  category: String!
+  media: [Upload]
+  inventory: [createInventoryInput]
+}
+
+input createInventoryInput {
+  amount: Int!
+  initialPrice: Float!
+  minSellingPriceEstimation: Float!
+  maxSellingPriceEstimation: Float!
+  media: Int
+  variation: [productVariationInput]
+}
+
+input productVariationInput {
+  title: String
+  data: String
+}
+
+input updateProductInput {
+  title: String
+  detail: String
+  category: String
+  media: [updateMedia]
+  inventory: [updateProductInventoryInput]
+  id: ID!
+}
+
+input updateProductInventoryInput {
+  amount: Int
+  initialPrice: Float
+  minSellingPriceEstimation: Float
+  maxSellingPriceEstimation: Float
+  media: Int
+  variation: [productVariationInput]
+  id: ID
+}
+
+input updateMedia {
+  file: Upload
+  url: String
+}
+
+extend type Query {
+  product(id: ID!): Product
+  productByCode(productCode: String!): Product
+  products(input: productsFilter!): [Product]
+}
+
+extend type Mutation {
+  createProduct(input: createProductInput!): Product!
+  updateProduct(input: updateProductInput!): Product!
+}
